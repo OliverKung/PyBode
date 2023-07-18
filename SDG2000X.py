@@ -11,13 +11,21 @@ class SDG2000X:
         self.instr.write("SYST:BEEP ON")
         print(self.instr.ask("*IDN?"))
         self.instr.write("SYST:BEEP OFF")
-    def set_sine_waveform(self,freq,amplitude,channel=1):
-        if(channel == 1):
+    def set_sine_waveform(self,freq,amplitude,channel:channel_number):
+        if(channel == channel_number.CH1 or channel_number == channel_number.ch1):
             channel_Str="C1"
         else:
             channel_Str="C2"
         self.instr.write(channel_Str+":BSWV AMP,"+str(amplitude))
         self.instr.write(channel_Str+":BSWV FRQ,"+str(freq))
+
+
+    def setChannelOutputState(self,channel:channel_number,state):
+        if(channel == channel_number.ch1 or channel == channel_number.CH1):
+            channel_Str="C1"
+        else:
+            channel_Str="C2"
+        self.instr.write(channel_Str+":OUTP "+"ON" if state==1 else "OFF")
 
 
 if __name__=="__main__":

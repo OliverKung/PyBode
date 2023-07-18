@@ -104,6 +104,21 @@ class mso5k:
             image.write(img[11:])# remove head 11 meaning less bytes
             image.close()
 
+    def setTimebaseScale(self,timebase_scale):
+        self.instr.write(":TIM:SCAL "+str(timebase_scale))
+    
+    def setChannelOffet(self,channel:channel_number,offset):
+        self.instr.write(":"+channel.value+":OFFS "+str(offset))
+
+    def getChannelScale(self,channel:channel_number):
+        return float(self.instr.ask(":"+channel.value+":SCAL?"))
+    
+    def setChannelScale(self,channel:channel_number,scale):
+        self.instr.write(":"+channel.value+":SCAL "+str(scale))
+    
+    def getTimebaseScale(self):
+        return float(self.instr.ask(":TIM:SCAL?"))
+        
 if __name__=="__main__":
     my_osc=mso5k("192.168.31.32","MSO5072")
     print(my_osc.voltage(channel_number.ch1,wave_parameter.rms))
