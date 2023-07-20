@@ -99,8 +99,8 @@ class mso5k:
         samplemode:sample_method=sample_method.normal):
         self.instr.write(":ACQ:TYPE "+samplemode.value)
         self.instr.write(":ACQ:MDEP "+memdepth.value)
-        print("Memory Depth of "+self.model+" locates at "+self.addr+" set to "+self.instr.ask(":ACQ:MDEP?"))
-        print("Acquire Mode of "+self.model+" locates at "+self.addr+" set to "+self.instr.ask(":ACQ:TYPE?"))
+        # print("Memory Depth of "+self.model+" locates at "+self.addr+" set to "+self.instr.ask(":ACQ:MDEP?"))
+        # print("Acquire Mode of "+self.model+" locates at "+self.addr+" set to "+self.instr.ask(":ACQ:TYPE?"))
         time.sleep(1)
 
     def getScreenshoot(self,file_name:str):

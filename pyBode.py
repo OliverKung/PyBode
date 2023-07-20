@@ -156,7 +156,6 @@ def parse_args():
 
 if __name__=="__main__":
     args = parse_args()
-    print(args)
     #arguments correction check
     if(args.afg_ip == ""):
         print("\033[0;31;40mERROR! YOU MUST SET IP ADDR OF AFG\033[0m")
