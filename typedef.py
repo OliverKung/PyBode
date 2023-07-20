@@ -1,13 +1,20 @@
 from enum import Enum
+# class channel_number(Enum):
+#     CH1="CHAN1"
+#     ch1="CHAN1"
+#     CH2="CHAN2"
+#     ch2="CHAN2"
+#     CH3="CHAN3"
+#     ch3="CHAN3"
+#     CH4="CHAN4"
+#     ch4="CHAN4"
+
 class channel_number(Enum):
-    CH1="CHAN1"
     ch1="CHAN1"
-    CH2="CHAN2"
     ch2="CHAN2"
-    CH3="CHAN3"
     ch3="CHAN3"
-    CH4="CHAN4"
     ch4="CHAN4"
+
 
 class wave_parameter(Enum):
     Peak2Peak = "VPP"

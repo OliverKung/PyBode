@@ -20,12 +20,18 @@ class memory_store_depth(Enum):
     depth_50M="50M"
     depth_100M="100M"
     depth_200M="200M"
+    depth_AUTO="AUTO"
 
 class sample_method(Enum):
     normal="NORM"
     average="AVER"
     peak_detect="PEAK"
     high_resolution="HRES"
+
+class couple_type(Enum):
+    ac = "AC"
+    dc = "DC"
+    gnd = "GND"
 
 class mso5k:
     def __init__(self,addr,model):
@@ -89,7 +95,7 @@ class mso5k:
                 self.instr.write(":RUN")
             print(channel.value+" Data of "+self.model+" locates at "+self.addr+" saved to "+file_name)
 
-    def setAcquire(self,memdepth:memory_store_depth=memory_store_depth.depth_1k,\
+    def setAcquire(self,memdepth:memory_store_depth=memory_store_depth.depth_AUTO,\
         samplemode:sample_method=sample_method.normal):
         self.instr.write(":ACQ:TYPE "+samplemode.value)
         self.instr.write(":ACQ:MDEP "+memdepth.value)
@@ -118,7 +124,18 @@ class mso5k:
     
     def getTimebaseScale(self):
         return float(self.instr.ask(":TIM:SCAL?"))
-        
+    
+    def setChannelCouple(self,channel:channel_number,couple:couple_type):
+        self.instr.write(":"+channel.value+":COUP "+couple.value)
+    
+    def setTriggerChannel(self,channel:channel_number):
+        self.instr.write(":TRIG:EDGE:SOUR "+channel.value)
+    
+    def setTriggerLevel(self,voltage):
+        self.instr.write(":TRIG:EDGE:LEV "+str(voltage))
+
+    def setAverageTimes(self,averagetimes):
+        self.instr.write(":ACQ:AVER "+str(2**averagetimes))
 if __name__=="__main__":
     my_osc=mso5k("192.168.31.32","MSO5072")
     print(my_osc.voltage(channel_number.ch1,wave_parameter.rms))
