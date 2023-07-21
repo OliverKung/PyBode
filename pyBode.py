@@ -35,6 +35,7 @@ class PyBode():
         self.osc=mso5k(osc_addr,"MSO5072")
         self.afg=SDG2000X(afg_addr,"SDG2042X")
         self.syncTriggerEnable = False
+        self.average_times = 4
     
     def run(self,startFreq,stopFreq,totalPoints,Ampilitude,\
             ExcitationChannel:channel_number,\
@@ -56,13 +57,21 @@ class PyBode():
 
         with open('.\\ExampleData\\bode_data_'+time.strftime("%Y-%m-%d-%H%M%S", time.localtime(time.time()))+".csv","w") as f:
             for freq in tqdm(freq_list):
+                if(self.syncTriggerEnable == False):
+                    sample_delay=0.01 if 0.01>4*1/freq else 4*1/freq
+                else:
+                    sample_delay=4*1/freq*2**self.average_times
+                # print(sample_delay)
                 my_dsg.set_freq_amp(freq,Ampilitude,ExcitationChannel)
 
                 if(self.syncTriggerEnable == True):
-                    my_dsg.set_freq_amp(freq,1,syncTrigger)    #set signal source
+                    freqSquare=freq
+                    while(freqSquare>25e6):
+                        freqSquare=freqSquare/2
+                    my_dsg.set_freq_amp(freqSquare,1,syncTrigger)    #set signal source
 
                 my_osc.setTimebaseScale(0.25*1/freq)
-                time.sleep(0.01 if 0.01>4*1/freq else 4*1/freq) #wait for measure
+                time.sleep(sample_delay) #wait for measure
                 
                 voltage1=my_osc.voltage(inputChannel,wave_parameter.Peak2Peak)
                 voltage2=my_osc.voltage(outputChannel,wave_parameter.Peak2Peak)
@@ -70,14 +79,14 @@ class PyBode():
                 while(voltage1>channel1_scale*8):#When amplitude is too large, auto scale
                     print("CH1 voltage scale too large, voltage is "+str(voltage1)+",scale is "+str(voltage1))
                     my_osc.setChannelScale(inputChannel,channel1_scale*8)
-                    time.sleep(0.01 if 0.01>4*1/freq else 4*1/freq)
+                    time.sleep(sample_delay)
                     channel1_scale=channel1_scale*8
                     voltage1=my_osc.voltage(inputChannel,wave_parameter.Peak2Peak)
                 
                 while(voltage2>channel2_scale*8):#When amplitude is too large, auto scale
                     print("CH2 voltage scale too large, voltage is "+str(voltage2)+",scale is "+str(voltage2))
                     my_osc.setChannelScale(outputChannel,channel2_scale*8)
-                    time.sleep(0.01 if 0.01>4*1/freq else 4*1/freq)
+                    time.sleep(sample_delay)
                     channel2_scale=channel2_scale*8
                     voltage2=my_osc.voltage(outputChannel,wave_parameter.Peak2Peak)
 
@@ -88,7 +97,7 @@ class PyBode():
                     my_osc.setChannelScale(outputChannel,voltage2/4)
                     channel2_scale = voltage2/4
 
-                time.sleep(0.01 if 0.01>4*1/freq else 4*1/freq) #wait for measure
+                time.sleep(sample_delay) #wait for measure
 
                 voltage1=my_osc.voltage(inputChannel,wave_parameter.RMS)
                 voltage2=my_osc.voltage(outputChannel,wave_parameter.RMS)
@@ -120,6 +129,7 @@ class PyBode():
 
             self.afg.set_waveform_type(excitionchannel,waveform_type.sin)
             self.afg.set_waveform_type(synctrigger,waveform_type.square)
+            self.afg.setChannelOutputState(synctrigger,1)
             self.afg.setChannelOutputState(excitionchannel,1)
             return;
         else:
@@ -165,7 +175,7 @@ if __name__=="__main__":
 
     if(args.sync_trigger_enable == "true"):
         uPyBode.syncTriggerEnable = True
-
+    uPyBode.average_times=args.average_times
     excitionChannel=channel_number.ch1
     inputChannel=channel_number.ch1
     outputChannel=channel_number.ch2
@@ -175,7 +185,6 @@ if __name__=="__main__":
     for method in sample_method:
         if(args.sample_method == method.name):
             sampleMethod=method
-    print(sampleMethod)
     for channel in channel_number:
         if(args.excition_channel == channel.name):
             excitionChannel=channel
