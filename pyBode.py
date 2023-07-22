@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import argparse
 
-def show_in_window(fig):
+def show_in_window(fig,no_gui):
     import sys, os
     import plotly.offline
     from PyQt5.QtCore import QUrl
@@ -18,14 +18,14 @@ def show_in_window(fig):
     from PyQt5.QtWidgets import QApplication
     
     plotly.offline.plot(fig, filename='./name.html', auto_open=False)
-    
-    app = QApplication(sys.argv)
-    web = QWebEngineView()
-    file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "name.html"))
-    print(file_path)
-    web.load(QUrl.fromLocalFile(file_path))
-    web.show()
-    sys.exit(app.exec_())
+    if(no_gui == False):
+        app = QApplication(sys.argv)
+        web = QWebEngineView()
+        file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "name.html"))
+        print(file_path)
+        web.load(QUrl.fromLocalFile(file_path))
+        web.show()
+        sys.exit(app.exec_())
 
 
 class PyBode():
@@ -36,6 +36,7 @@ class PyBode():
         self.afg=SDG2000X(afg_addr,"SDG2042X")
         self.syncTriggerEnable = False
         self.average_times = 4
+        self.no_gui = False
     
     def run(self,startFreq,stopFreq,totalPoints,Ampilitude,\
             ExcitationChannel:channel_number,\
@@ -77,14 +78,14 @@ class PyBode():
                 voltage2=my_osc.voltage(outputChannel,wave_parameter.Peak2Peak)
 
                 while(voltage1>channel1_scale*8):#When amplitude is too large, auto scale
-                    print("CH1 voltage scale too large, voltage is "+str(voltage1)+",scale is "+str(voltage1))
+                    print("CH1 voltage scale too large, voltage is "+str(voltage1)+",scale is "+str(voltage1)+", Freq is "+str(freq))
                     my_osc.setChannelScale(inputChannel,channel1_scale*8)
                     time.sleep(sample_delay)
                     channel1_scale=channel1_scale*8
                     voltage1=my_osc.voltage(inputChannel,wave_parameter.Peak2Peak)
                 
                 while(voltage2>channel2_scale*8):#When amplitude is too large, auto scale
-                    print("CH2 voltage scale too large, voltage is "+str(voltage2)+",scale is "+str(voltage2))
+                    print("CH2 voltage scale too large, voltage is "+str(voltage2)+",scale is "+str(voltage2)+", Freq is "+str(freq))
                     my_osc.setChannelScale(outputChannel,channel2_scale*8)
                     time.sleep(sample_delay)
                     channel2_scale=channel2_scale*8
@@ -101,7 +102,9 @@ class PyBode():
 
                 voltage1=my_osc.voltage(inputChannel,wave_parameter.RMS)
                 voltage2=my_osc.voltage(outputChannel,wave_parameter.RMS)
-                phase=my_osc.phase(inputChannel,outputChannel)
+                phase=-1*my_osc.phase(inputChannel,outputChannel)
+                while(phase > 180 or phase<-180):
+                    phase=-1*my_osc.phase(inputChannel,outputChannel)
                 gain=20*math.log(voltage2/voltage1,10)
 
                 f.write(str(freq)+","+str(voltage1)+","+str(voltage2)+","+str(gain)+","+str(phase)+"\r")
@@ -112,7 +115,7 @@ class PyBode():
         fig.add_trace(go.Scatter(x=df['freq'], y=df['phase'], mode='lines', name='Phase'), row = 2, col = 1)
         fig.update_xaxes(type="log", exponentformat="power")
         fig.update_layout()
-        show_in_window(fig)
+        show_in_window(fig,self.no_gui)
     def setChannel(self,excitionchannel,inputchannel,outputchannel,\
                    synctrigger,syncchannel,samplemethod,averageTimes):
         if(self.syncTriggerEnable == True):
@@ -162,6 +165,7 @@ def parse_args():
     parser.add_argument("-sTE","--sync-trigger-enable",type=str,default="false",help="sync Trigger function enable, default is flase")
     parser.add_argument("--afg-ip",type=str,default="",help="IP addr of arbitary function generator")
     parser.add_argument("--osc-ip",type=str,default="",help="IP addr of oscilliscope")
+    parser.add_argument("--no-gui",action="store_true",default=False)
     return parser.parse_args()
 
 if __name__=="__main__":
@@ -175,6 +179,8 @@ if __name__=="__main__":
 
     if(args.sync_trigger_enable == "true"):
         uPyBode.syncTriggerEnable = True
+    if(args.no_gui == True):
+        uPyBode.no_gui = True
     uPyBode.average_times=args.average_times
     excitionChannel=channel_number.ch1
     inputChannel=channel_number.ch1
@@ -183,19 +189,20 @@ if __name__=="__main__":
     syncChannel=channel_number.ch3
     sampleMethod = sample_method.normal
     for method in sample_method:
-        if(args.sample_method == method.name):
+        if(args.sample_method.lower() == method.name):
             sampleMethod=method
     for channel in channel_number:
-        if(args.excition_channel == channel.name):
+        if(args.excition_channel.lower() == channel.name):
             excitionChannel=channel
-        if(args.input_channel == channel.name):
+        if(args.input_channel.lower() == channel.name):
             inputChannel=channel
-        if(args.output_channel == channel.name):
+        if(args.output_channel.lower() == channel.name):
             outputChannel=channel
-        if(args.sync_trigger == channel.name):
+        if(args.sync_trigger.lower() == channel.name):
             syncTrigger=channel
-        if(args.sync_channel == channel.name):
+        if(args.sync_channel.lower() == channel.name):
             syncChannel=channel
+    print(syncTrigger)
     uPyBode.setChannel(excitionChannel,inputChannel,outputChannel,\
                        syncTrigger,syncChannel,sampleMethod,args.average_times)
 
