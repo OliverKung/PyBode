@@ -19,10 +19,10 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>pyBode GUI</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_2" columnstretch="2,8,0">
+   <layout class="QGridLayout" name="gridLayout_2" columnstretch="2,8">
     <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout" rowstretch="1,2,2,2,2,2">
       <item row="0" column="0">
@@ -211,11 +211,6 @@
               </property>
               <item>
                <property name="text">
-                <string>OFF</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
                 <string>CH1</string>
                </property>
               </item>
@@ -312,11 +307,6 @@
               </property>
               <item>
                <property name="text">
-                <string>OFF</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
                 <string>CH1</string>
                </property>
               </item>
@@ -350,7 +340,7 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>10e-3</string>
+               <string>1</string>
               </property>
              </widget>
             </item>
@@ -373,7 +363,7 @@
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,1">
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_15">
             <item>
@@ -431,7 +421,14 @@
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="AverageTimes"/>
+             <widget class="QSpinBox" name="AverageTimes">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -456,11 +453,22 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="StartButton">
-          <property name="text">
-           <string>START</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QPushButton" name="StartButton">
+            <property name="text">
+             <string>START</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="STOPButton">
+            <property name="text">
+             <string>STOP</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
@@ -477,7 +485,7 @@
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="1,1,1">
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_19">
             <item>
@@ -493,7 +501,7 @@
             <item>
              <widget class="QLineEdit" name="StartFrequency">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -576,7 +584,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
   </widget>

@@ -49,19 +49,24 @@ class PyBode():
 
         freq_list=np.logspace(math.log(startFreq,10),math.log(stopFreq,10),int(totalPoints),endpoint = True)
         df=pd.DataFrame({}, columns=['freq', 'gain', 'phase'])
-
+        # print(freq_list)
         timebase_scale=10
         my_osc.setTimebaseScale(10)
 
         channel1_scale=my_osc.getChannelScale(inputChannel)
         channel2_scale=my_osc.getChannelScale(outputChannel)
+        counter = 1
 
         with open('.\\ExampleData\\bode_data_'+time.strftime("%Y-%m-%d-%H%M%S", time.localtime(time.time()))+".csv","w") as f:
             for freq in tqdm(freq_list):
+                with open(".\\temp\\progress.csv","w") as tmp:
+                    tmp.write(str(freq)+","+str(counter)+","+str(int(totalPoints)))
+                    tmp.close()
+                    counter=counter+1
                 if(self.syncTriggerEnable == False):
                     sample_delay=0.01 if 0.01>4*1/freq else 4*1/freq
                 else:
-                    sample_delay=4*1/freq*2**self.average_times
+                    sample_delay=4*4*1/freq*2**self.average_times
                 # print(sample_delay)
                 my_dsg.set_freq_amp(freq,Ampilitude,ExcitationChannel)
 
@@ -70,7 +75,7 @@ class PyBode():
                     while(freqSquare>25e6):
                         freqSquare=freqSquare/2
                     my_dsg.set_freq_amp(freqSquare,1,syncTrigger)    #set signal source
-
+                # print(freq)
                 my_osc.setTimebaseScale(0.25*1/freq)
                 time.sleep(sample_delay) #wait for measure
                 
@@ -78,23 +83,33 @@ class PyBode():
                 voltage2=my_osc.voltage(outputChannel,wave_parameter.Peak2Peak)
 
                 while(voltage1>channel1_scale*8):#When amplitude is too large, auto scale
-                    print("CH1 voltage scale too large, voltage is "+str(voltage1)+",scale is "+str(voltage1)+", Freq is "+str(freq))
+                    print("CH1 voltage scale too large, voltage is "+str(voltage1)+",scale is "+str(channel1_scale)+", Freq is "+str(freq))
                     my_osc.setChannelScale(inputChannel,channel1_scale*8)
                     time.sleep(sample_delay)
                     channel1_scale=channel1_scale*8
+                    if(channel1_scale>10):
+                        channel1_scale=10
+                    if(channel1_scale<1e-3):
+                        channel1_scale=1e-3
                     voltage1=my_osc.voltage(inputChannel,wave_parameter.Peak2Peak)
                 
                 while(voltage2>channel2_scale*8):#When amplitude is too large, auto scale
-                    print("CH2 voltage scale too large, voltage is "+str(voltage2)+",scale is "+str(voltage2)+", Freq is "+str(freq))
+                    print("CH2 voltage scale too large, voltage is "+str(voltage2)+",scale is "+str(channel1_scale)+", Freq is "+str(freq))
                     my_osc.setChannelScale(outputChannel,channel2_scale*8)
                     time.sleep(sample_delay)
                     channel2_scale=channel2_scale*8
+                    if(channel2_scale>10):
+                        channel2_scale=10
+                    if(channel2_scale<1e-3):
+                        channel2_scale=1e-3
                     voltage2=my_osc.voltage(outputChannel,wave_parameter.Peak2Peak)
 
-                if(voltage1<2*channel1_scale or voltage1>6*channel1_scale):
+                while(voltage1<2*channel1_scale or voltage1>6*channel1_scale):
+                    voltage1=my_osc.voltage(inputChannel,wave_parameter.Peak2Peak)
                     my_osc.setChannelScale(inputChannel,voltage1/4)#AutoScale when signal is too small
                     channel1_scale = voltage1/4
-                if(voltage2<2*channel2_scale or voltage2>6*channel2_scale):
+                while(voltage2<2*channel2_scale or voltage2>6*channel2_scale):
+                    voltage2=my_osc.voltage(outputChannel,wave_parameter.Peak2Peak)
                     my_osc.setChannelScale(outputChannel,voltage2/4)
                     channel2_scale = voltage2/4
 
@@ -103,10 +118,14 @@ class PyBode():
                 voltage1=my_osc.voltage(inputChannel,wave_parameter.RMS)
                 voltage2=my_osc.voltage(outputChannel,wave_parameter.RMS)
                 phase=-1*my_osc.phase(inputChannel,outputChannel)
-                while(phase > 180 or phase<-180):
+                loopCounter = 0
+                while(phase > 180 or phase<-180 and loopCounter<20):
                     phase=-1*my_osc.phase(inputChannel,outputChannel)
+                    loopCounter = loopCounter + 1
+                if(loopCounter >= 20):
+                    phase = 0
                 gain=20*math.log(voltage2/voltage1,10)
-
+                # print(str(freq)+","+str(voltage1)+","+str(voltage2)+","+str(gain)+","+str(phase))
                 f.write(str(freq)+","+str(voltage1)+","+str(voltage2)+","+str(gain)+","+str(phase)+"\r")
                 df.loc[len(df.index)]=[freq,gain,phase]
             f.close()
