@@ -28,6 +28,13 @@ def show_in_window(fig,no_gui):
         sys.exit(app.exec_())
 
 
+def voltageScaleLimiter(voltagescale):
+    if(voltagescale>10):
+        return 10
+    if(voltagescale<20e-3):
+        return 20e-3
+    return voltagescale
+
 class PyBode():
     def __init__(self,osc_addr,afg_addr):
         self.osc_addr=osc_addr
@@ -87,10 +94,7 @@ class PyBode():
                     my_osc.setChannelScale(inputChannel,channel1_scale*8)
                     time.sleep(sample_delay)
                     channel1_scale=channel1_scale*8
-                    if(channel1_scale>10):
-                        channel1_scale=10
-                    if(channel1_scale<1e-3):
-                        channel1_scale=1e-3
+                    channel1_scale = voltageScaleLimiter(channel1_scale)
                     voltage1=my_osc.voltage(inputChannel,wave_parameter.Peak2Peak)
                 
                 while(voltage2>channel2_scale*8):#When amplitude is too large, auto scale
@@ -98,20 +102,21 @@ class PyBode():
                     my_osc.setChannelScale(outputChannel,channel2_scale*8)
                     time.sleep(sample_delay)
                     channel2_scale=channel2_scale*8
-                    if(channel2_scale>10):
-                        channel2_scale=10
-                    if(channel2_scale<1e-3):
-                        channel2_scale=1e-3
+                    channel2_scale = voltageScaleLimiter(channel2_scale)
                     voltage2=my_osc.voltage(outputChannel,wave_parameter.Peak2Peak)
 
-                while(voltage1<2*channel1_scale or voltage1>6*channel1_scale):
+                loopCounter = 0
+                while((voltage1<2*channel1_scale or voltage1>6*channel1_scale) and loopCounter<10):
                     voltage1=my_osc.voltage(inputChannel,wave_parameter.Peak2Peak)
-                    my_osc.setChannelScale(inputChannel,voltage1/4)#AutoScale when signal is too small
-                    channel1_scale = voltage1/4
-                while(voltage2<2*channel2_scale or voltage2>6*channel2_scale):
+                    channel1_scale = voltageScaleLimiter(voltage1/4)
+                    my_osc.setChannelScale(inputChannel,channel1_scale)#AutoScale when signal is too small
+                    loopCounter = loopCounter+1
+                loopCounter = 0
+                while((voltage2<2*channel2_scale or voltage2>6*channel2_scale) and loopCounter<10):
                     voltage2=my_osc.voltage(outputChannel,wave_parameter.Peak2Peak)
-                    my_osc.setChannelScale(outputChannel,voltage2/4)
-                    channel2_scale = voltage2/4
+                    channel2_scale = voltageScaleLimiter(voltage2/4)
+                    my_osc.setChannelScale(outputChannel,channel2_scale)
+                    loopCounter = loopCounter+1
 
                 time.sleep(sample_delay) #wait for measure
 

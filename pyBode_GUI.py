@@ -3,10 +3,13 @@ import numpy as np
 import pyqtgraph as pg
 import sys
 import os,time,multiprocessing,subprocess,re
-from PyQt5.QtWidgets import QApplication,QWidget,QMainWindow,QMessageBox
+from PyQt5.QtWidgets import QApplication,QWidget,QMainWindow,QMessageBox,QSystemTrayIcon,QMenu
 from PyQt5.QtCore import QUrl,pyqtSlot,QTimer
 from PyQt5.QtWebEngineWidgets import QWebEngineView
+import PyQt5.QtCore as QtCore
+from PyQt5.QtGui import QIcon
 import GUI,progressbar
+import ctypes
 
 def check_ip(ipAddr):
     compile_ip=re.compile('^(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[1-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|\d)\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|\d)\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|\d)$')
@@ -31,7 +34,8 @@ class mainCode(QMainWindow,GUI.Ui_pyBode):
         self.STOPButton.setEnabled(False)
         self.AverageTimes.setEnabled(False)
         self.SampleMode.currentTextChanged.connect(self.on_SampleMode_currentTextChanged)
-
+        self.actionSave.triggered.connect(self.on_SaveDefaultBut_clicked)
+        self.actionLoad.triggered.connect(self.on_LoadDefaultBut_clicked)
     @pyqtSlot()
     def on_StartButton_clicked(self):
         if(check_ip(self.AFG_IP.text())!=True or check_ip(self.OSC_IP.text())!=True):
@@ -119,6 +123,71 @@ class mainCode(QMainWindow,GUI.Ui_pyBode):
         else:
             self.AverageTimes.setEnabled(True)
 
+    @pyqtSlot()
+    def on_SaveDefaultBut_clicked(self):
+        with open(".\\temp\\state.csv","w") as state:
+            if(self.SyncTriggerEnable.isChecked()==True):
+                state.write("SyncTriggerEnable=True\r")
+            else:
+                state.write("SyncTriggerEnable=False\r")
+            state.write("AFG_IP="+self.AFG_IP.text()+"\r")
+            state.write("OSC_IP="+self.OSC_IP.text()+"\r")
+            state.write("Excition="+str(self.AFG_Excition.currentIndex())+"\r")
+            state.write("Sync="+str(self.AFG_Sync.currentIndex())+"\r")
+            state.write("Amp="+self.Amplitude.text()+"\r")
+            state.write("Input="+str(self.OSC_Input.currentIndex())+"\r")
+            state.write("Output="+str(self.OSC_Output.currentIndex())+"\r")
+            state.write("SyncCh="+str(self.OSC_Sync.currentIndex())+"\r")
+            state.write("Sample="+str(self.SampleMode.currentIndex())+"\r")
+            state.write("Average="+self.AverageTimes.text()+"\r")
+            state.write("StartFrequency="+self.StartFrequency.text()+"\r")
+            state.write("StopFrequency="+self.StopFrequency.text()+"\r")
+            state.write("Point="+self.Points.text()+"\r")
+            state.close()
+        WarningBox("Current State Saved")
+
+    @pyqtSlot()
+    def on_LoadDefaultBut_clicked(self):
+        with open(".\\temp\\state.csv","r") as state:
+            lines = state.readlines()
+            for line in lines:
+                name = line.split("=")[0]
+                value = line.split("=")[1].replace("\n","")
+                if(name =="SyncTriggerEnable"):
+                    if(value == "True"):
+                        self.SyncTriggerEnable.setChecked(True)
+                    else:
+                        self.SyncTriggerEnable.setChecked(False)
+                    self.on_SyncTriggerEnable_clicked()
+                if(name == "AFG_IP"):
+                    self.AFG_IP.setText(value)
+                if(name =="OSC_IP"):
+                    self.OSC_IP.setText(value)
+                if(name =="Excition"):
+                    self.AFG_Excition.setCurrentIndex(int(value))
+                if(name =="Sync"):
+                    self.AFG_Sync.setCurrentIndex(int(value))
+                if(name =="Amp"):
+                    self.Amplitude.setText(value)
+                if(name =="Input"):
+                    self.OSC_Input.setCurrentIndex(int(value))
+                if(name =="Output"):
+                    self.OSC_Output.setCurrentIndex(int(value))
+                if(name =="SyncCh"):
+                    self.OSC_Sync.setCurrentIndex(int(value))
+                if(name =="Sample"):
+                    self.SampleMode.setCurrentIndex(int(value))
+                if(name =="Average"):
+                    self.AverageTimes.setValue(int(value))
+                if(name =="StartFrequency"):
+                    self.StartFrequency.setText(value)
+                if(name =="StopFrequency"):
+                    self.StopFrequency.setText(value)
+                if(name =="Point"):
+                    self.Points.setText(value)
+            state.close()
+        WarningBox("Load Current State")
+
     def loadHtml(self):
         file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "name.html"))
         self.plotyWidget.load(QUrl.fromLocalFile(file_path))
@@ -138,10 +207,14 @@ class mainCode(QMainWindow,GUI.Ui_pyBode):
                 totaljob = float(line.split(",")[2])
                 self.bar.set_value(freq,int(100*currentjob/totaljob))
 
-
 if __name__=="__main__":
     app = QApplication(sys.argv)
+    icon = QIcon(".\\Resource\\PyBode.ico")
+    # app.setWindowIcon(icon)
     mainc=mainCode()
+    mainc.setWindowIcon(icon)
+    if(sys.platform == "win32"):
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(u'myappid')
     mainc.show()
     mainc.loadHtml()
     sys.exit(app.exec_())
