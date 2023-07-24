@@ -3,7 +3,7 @@ import numpy as np
 import pyqtgraph as pg
 import sys
 import os,time,multiprocessing,subprocess,re
-from PyQt5.QtWidgets import QApplication,QWidget,QMainWindow
+from PyQt5.QtWidgets import QApplication,QWidget,QMainWindow,QMessageBox
 from PyQt5.QtCore import QUrl,pyqtSlot,QTimer
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 import GUI,progressbar
@@ -15,10 +15,9 @@ def check_ip(ipAddr):
     else:
         return False
 
-class WarningWindow(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("WARNING")
+def WarningBox(message):
+    warningwindow = QMessageBox(QMessageBox.Warning,"Warning",message)
+    warningwindow.exec_()
 
 class mainCode(QMainWindow,GUI.Ui_pyBode):
     def __init__(self):
@@ -36,8 +35,7 @@ class mainCode(QMainWindow,GUI.Ui_pyBode):
     @pyqtSlot()
     def on_StartButton_clicked(self):
         if(check_ip(self.AFG_IP.text())!=True or check_ip(self.OSC_IP.text())!=True):
-            warningwindow = WarningWindow()
-            warningwindow.show()
+            WarningBox("Check IP of AFG/OSC")
             return
         self.STOPButton.setEnabled(True)
         self.StartButton.setEnabled(False)
