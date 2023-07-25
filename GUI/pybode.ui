@@ -594,7 +594,14 @@
     <addaction name="actionSave"/>
     <addaction name="actionLoad"/>
    </widget>
+   <widget class="QMenu" name="menuChannel">
+    <property name="title">
+     <string>Channel</string>
+    </property>
+    <addaction name="actionChannel_Set"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuChannel"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionSave">
@@ -613,6 +620,11 @@
     <string>Ctrl+L</string>
    </property>
   </action>
+  <action name="actionChannel_Set">
+   <property name="text">
+    <string>Channel Set</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -622,6 +634,25 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>AFG_IP</tabstop>
+  <tabstop>OSC_IP</tabstop>
+  <tabstop>AFG_Excition</tabstop>
+  <tabstop>AFG_Sync</tabstop>
+  <tabstop>Amplitude</tabstop>
+  <tabstop>OSC_Input</tabstop>
+  <tabstop>OSC_Output</tabstop>
+  <tabstop>OSC_Sync</tabstop>
+  <tabstop>SampleMode</tabstop>
+  <tabstop>AverageTimes</tabstop>
+  <tabstop>StartFrequency</tabstop>
+  <tabstop>StopFrequency</tabstop>
+  <tabstop>Points</tabstop>
+  <tabstop>SyncTriggerEnable</tabstop>
+  <tabstop>LoadVNC</tabstop>
+  <tabstop>StartButton</tabstop>
+  <tabstop>STOPButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

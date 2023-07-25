@@ -136,6 +136,17 @@ class mso5k:
 
     def setAverageTimes(self,averagetimes):
         self.instr.write(":ACQ:AVER "+str(2**averagetimes))
+    
+    def setChannelAtte(self,channel:channel_number,atte):
+        self.instr.write(":"+channel.value+":PROB "+atte)
+    
+    def setChannelUnit(self,channel:channel_number,unit:str):
+        self.instr.write(":"+channel.value+":UNIT "+unit)
+    
+    def getChannelAtte(self,channel:channel_number):
+        Atte=self.instr.ask(":"+channel.value+":PROB?")
+        return float(Atte)
+    
 if __name__=="__main__":
     my_osc=mso5k("192.168.31.32","MSO5072")
     print(my_osc.voltage(channel_number.ch1,wave_parameter.rms))

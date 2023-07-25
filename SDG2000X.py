@@ -33,6 +33,12 @@ class SDG2000X:
             channel_Str="C2"
         self.instr.write(channel_Str+":OUTP "+"ON" if state==1 else "OFF")
 
+    def setChannelLoadImpedance(self,channel:channel_number,loadimpedance):
+        if(channel == channel_number.ch1):
+            channel_Str="C1"
+        else:
+            channel_Str="C2"
+        self.instr.write(channel_Str+":OUTP LOAD,"+loadimpedance)
 
 if __name__=="__main__":
     my_dsg=SDG2000X("192.168.31.24","MSO5072")

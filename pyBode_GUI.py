@@ -8,7 +8,7 @@ from PyQt5.QtCore import QUrl,pyqtSlot,QTimer
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 import PyQt5.QtCore as QtCore
 from PyQt5.QtGui import QIcon
-import GUI,progressbar
+import GUI,progressbar,channelSet
 import ctypes
 
 def check_ip(ipAddr):
@@ -36,6 +36,7 @@ class mainCode(QMainWindow,GUI.Ui_pyBode):
         self.SampleMode.currentTextChanged.connect(self.on_SampleMode_currentTextChanged)
         self.actionSave.triggered.connect(self.on_SaveDefaultBut_clicked)
         self.actionLoad.triggered.connect(self.on_LoadDefaultBut_clicked)
+        self.actionChannel_Set.triggered.connect(self.on_actionChannel_Set_Triggered)
     @pyqtSlot()
     def on_StartButton_clicked(self):
         if(check_ip(self.AFG_IP.text())!=True or check_ip(self.OSC_IP.text())!=True):
@@ -187,6 +188,10 @@ class mainCode(QMainWindow,GUI.Ui_pyBode):
                     self.Points.setText(value)
             state.close()
         WarningBox("Load Current State")
+
+    @pyqtSlot()
+    def on_actionChannel_Set_Triggered(self):
+        self.actionChannelProcess = subprocess.Popen("python channelSet_GUI.py --osc-ip "+self.OSC_IP.text()+" --afg-ip "+self.AFG_IP.text())
 
     def loadHtml(self):
         file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "name.html"))
