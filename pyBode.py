@@ -129,7 +129,7 @@ class PyBode():
                 voltage2=my_osc.voltage(outputChannel,wave_parameter.RMS)
                 phase=-1*my_osc.phase(inputChannel,outputChannel)
                 loopCounter = 0
-                while(phase > 180 or phase<-180 and loopCounter<20):
+                while(phase > 180 or phase<-180 and loopCounter<10):
                     phase=-1*my_osc.phase(inputChannel,outputChannel)
                     loopCounter = loopCounter + 1
                 if(loopCounter >= 20):

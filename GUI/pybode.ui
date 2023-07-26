@@ -23,6 +23,16 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2" columnstretch="2,8">
+    <item row="0" column="1">
+     <widget class="QWebEngineView" name="plotyWidget" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout" rowstretch="1,2,2,2,2,2">
       <item row="0" column="0">
@@ -52,6 +62,9 @@
               <property name="text">
                <string>192.168.31.24</string>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
              </widget>
             </item>
            </layout>
@@ -78,6 +91,9 @@
               </property>
               <property name="text">
                <string>192.168.31.32</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
               </property>
              </widget>
             </item>
@@ -305,6 +321,9 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="sizeAdjustPolicy">
+               <enum>QComboBox::AdjustToContents</enum>
+              </property>
               <item>
                <property name="text">
                 <string>CH1</string>
@@ -428,6 +447,9 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
              </widget>
             </item>
            </layout>
@@ -509,6 +531,9 @@
               <property name="text">
                <string>1e3</string>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
              </widget>
             </item>
            </layout>
@@ -535,6 +560,9 @@
               </property>
               <property name="text">
                <string>1e6</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
               </property>
              </widget>
             </item>
@@ -563,6 +591,9 @@
               <property name="text">
                <string>100</string>
               </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
              </widget>
             </item>
            </layout>
@@ -572,9 +603,6 @@
        </layout>
       </item>
      </layout>
-    </item>
-    <item row="0" column="1">
-     <widget class="QWebEngineView" name="plotyWidget" native="true"/>
     </item>
    </layout>
   </widget>

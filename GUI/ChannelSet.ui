@@ -23,7 +23,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,4,2">
+    <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,3,2">
      <item>
       <widget class="QLabel" name="label">
        <property name="font">
@@ -772,6 +772,12 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPushButton" name="LoadButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Load</string>
        </property>
@@ -779,6 +785,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="SaveButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Save</string>
        </property>
@@ -786,6 +798,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="SetButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Set</string>
        </property>
