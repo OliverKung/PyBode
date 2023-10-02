@@ -78,7 +78,7 @@ class PyBode():
                     tmp.close()
                     counter=counter+1
                 if(self.syncTriggerEnable == False):
-                    sample_delay=0.01 if 0.01>4*1/freq else 4*1/freq
+                    sample_delay=0.1 if 0.1>4*1/freq*2**self.average_times else 4*1/freq*2**self.average_times
                 else:
                     sample_delay=4*4*1/freq*2**self.average_times
                 # print(sample_delay)

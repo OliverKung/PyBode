@@ -16,4 +16,4 @@ class instru_socket(socket.socket):
         
     def write(self,cmd):
         self.send((cmd+"\r\n").encode("utf-8"))
-    
+        # self.send(cmd.encode("utf-8"))

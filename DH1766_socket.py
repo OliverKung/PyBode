@@ -20,34 +20,34 @@ class IT63XX_socket:
         IDN_str=self.instru_socket.recv(100).decode()
         print(IDN_str)
         # somehow, if there is no time.sleep, the IDN string will be cut off. Maybe some bug of socat
-        self.instru_socket.write("SYST:REM")
+        # self.instru_socket.write("SYST:REM")
 
     def channel_on(self,channel:supply_channel_number=supply_channel_number.all):
         if(channel != supply_channel_number.all):
-            cmd="INST "+channel.value
+            cmd="INST:SEL "+channel.value
             self.instru_socket.write(cmd)
-            self.instru_socket.write("SOUR:CHAN:OUTPUT ON")
+            self.instru_socket.write("OUTP ON")
         else:
-            self.instru_socket.write("OUTP:STAT ON")
+            self.instru_socket.write("OUTP ON")
 
     def channel_off(self,channel:supply_channel_number=supply_channel_number.all):
         if(channel != supply_channel_number.all):
-            cmd="INST "+channel.value
+            cmd="INST:SEL "+channel.value
             self.instru_socket.write(cmd)
-            self.instru_socket.write("SOUR:CHAN:OUTPUT OFF")
+            self.instru_socket.write("OUTP OFF")
         else:
-            self.instru_socket.write("OUTP:STAT OFF")
+            self.instru_socket.write("OUTP OFF")
 
     def set_voltage(self,channel:supply_channel_number,voltage:float):
         if(channel!=supply_channel_number.all):
-            cmd="INST "+channel.value
+            cmd="INST:SEL "+channel.value
             self.instru_socket.write(cmd)
-            cmd="SOUR:VOLT "+str(voltage)
+            cmd="VOLT "+str(voltage)
             self.instru_socket.write(cmd)
 
     def set_current(self,channel:supply_channel_number,current:float):
         if(channel!=supply_channel_number.all):
-            cmd="INST "+channel.value
+            cmd="INST:SEL "+channel.value
             self.instru_socket.write(cmd)
             cmd="SOUR:CURR "+str(current)
             self.instru_socket.write(cmd)
@@ -73,14 +73,13 @@ class IT63XX_socket:
 
 if __name__ == "__main__":
     my_supply=IT63XX_socket("192.168.32.162",5025)
-    # my_supply.channel_off()
-    # my_supply.channel_on()
-    # time.sleep(1)
-    # my_supply.set_voltage(supply_channel_number.ch1,54.321)
-    # my_supply.set_voltage(supply_channel_number.ch2,12.345)
-    # my_supply.set_voltage(supply_channel_number.ch3,4.99)
-    # print(my_supply.meas_voltage(supply_channel_number.ch1))
-    # my_supply.channel_on()
-    # # my_supply.channel_off()
-    # time.sleep(2)
-    # print(my_supply.meas_current(supply_channel_number.ch1))
+    my_supply.set_voltage(supply_channel_number.ch1,0.1)
+    my_supply.channel_on(supply_channel_number.ch1)
+    time.sleep(0.5)
+    # print("output on")
+    for i in range(20):
+        voltage = i*5/20
+        print(voltage)
+        my_supply.set_voltage(supply_channel_number.ch1,voltage)
+        time.sleep(3)
+    
