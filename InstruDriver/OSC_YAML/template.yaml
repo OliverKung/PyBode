@@ -1,0 +1,69 @@
+oscillscope:
+  model: DHO900
+  SampleRate: 1.25e9
+
+rootCommand:
+  run: ":RUN"
+  stop: ":STOP"
+  single: ":SING"
+
+autosetCommand:
+  autoset: ":AUTOSET"
+
+acquireCommand:
+  command: ":ACQ"
+  averages: 
+    command: ":AVER <n>"
+  mdepth:
+    command: ":MEDP <val>"
+    list: ["AUTO","1k","10k","1M","10M","25M","50M"]
+  type:
+    command: ":TYPE <val>"
+    norm: "NORM"
+    peak: "PEAK"
+    aver: "AVER"
+
+measureCommand:
+  command: ":MEAS"
+  item:
+    command: ":ITEM?"
+    endfix_single: " <item>,<src>,<src>"
+    endfix_dual: " <item>,<src>"
+    vmax: "VMAX"
+    vmin: "VMIN"
+    vpp: "VPP"
+    vrms: "VRMS"
+    ac_rms: "ACRMS"
+    rise_rise_phase: "RRPhase"
+    rise_fall_phase: "RFPhase"
+    fall_rise_phase: "FRPhase"
+    fall_fall_phase: "FFPhase"
+    src:
+      channel1: "CHAN1"
+      channel2: "CHAN2"
+      channel3: "CHAN3"
+      channel4: "CHAN4"
+
+channelCommand:
+  command: ":CHAN<n>"
+  bandwidthLimit:
+    command: ":BWL "
+    list: ["20M"]
+  couple:
+    command: ":COUP"
+    ac: "AC"
+    dc: "DC"
+    gnd: "GND"
+  offset:
+    command: ":OFFS <val>"
+  position:
+    command: ":POS <val>"
+  tcalibrate:
+    command: ":TCAL <val>"
+  probe:
+    command: ":PROB <val>"
+  unit:
+    command: ":UNIT "
+    watt: "WATT"
+    amp: "AMP"
+    volt: "VOLT"

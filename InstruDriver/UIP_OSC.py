@@ -1,12 +1,18 @@
 # MSO5000 Series Oscilloscope python vxi11 lib.
 import vxi11
 import serial
-import importlib
+import yaml
 from enum import Enum
 import os
 import time
 from UIP_TypeDef import interface_Enum
 import instru_socket
+
+class channel_number(Enum):
+    channel1="channel1"
+    channel2="channel2"
+    channel3="channel3"
+    channel4="channel4"
 
 class UIP_OSC:
     def __init__(self,addr,model,interface:interface_Enum,\
@@ -41,12 +47,23 @@ class UIP_OSC:
         print(self.instr.ask("*IDN?"))
         self.instr.write("SYST:BEEP OFF")
     
+    def load_setting_yaml(self):
+        try:
+            with open("./instruDriver/OSC_YAML/"+self.model+".yaml","r") as f:
+                self.commandDict = yaml.load(f,Loader=yaml.FullLoader)
+        except:
+            print("Failed to Read YAML File!")
+    
     def autoscale(self):
-        self.instr.write(":AUT")
+        self.instr.write(self.commandDict["autosetCommand"]["autoset"])
         time.sleep(1)
     
-    def voltage(self,channel,items):
-        cmd = ":MEAS:ITEM? "+items.value+","+channel.value
+    def vrms(self,channel:channel_number):
+        cmd:str = self.commandDict["measureCommand"]["command"]+\
+            self.commandDict["measureCommand"]["item"]["command"]+\
+            self.commandDict["measureCommand"]["item"]["endfix_single"]
+        cmd.replace("<src>",self.commandDict["measureCommand"]["item"]["src"][channel.value])
+        cmd.replace("<item>",self.commandDict["measureCommand"]["item"]["vrms"])
         return float(self.instr.ask(cmd))
 
     def freq(self,channel):
