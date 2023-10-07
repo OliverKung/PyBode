@@ -14,6 +14,23 @@ class channel_number(Enum):
     channel3="channel3"
     channel4="channel4"
 
+class wave_parameter(Enum):
+    vmax = "vmax"
+    vmin = "vmin"
+    vpp = "vpp"
+    vrms = "vrms"
+    ac_rms = "ac_rms"
+    rise_rise_phase = "rise_rise_phase"
+    rise_fall_phase = "rise_fall_phase"
+    fall_rise_phase = "fall_rise_phase"
+    fall_fall_phase = "fall_fall_phase"
+    freq = "freq"
+
+class sample_type(Enum):
+    norm = "norm"
+    peak = "peak"
+    aver = "aver"
+    hires = "hires"
 class UIP_OSC:
     def __init__(self,addr,model,interface:interface_Enum,\
                  port=5555,\
@@ -42,45 +59,54 @@ class UIP_OSC:
                     self.instr = self.LXIinterface
                 except:
                     print("Failed to Create LXI Bus at "+self.addr)
+        ## load YAML config file
+        self.loadYAML()
+        print("YAML version:"+self.commandDict["oscillscope"]["driverVersion"])
         ## beep of OSC to confirm connected
         self.instr.write("SYST:BEEP ON")
         print(self.instr.ask("*IDN?"))
         self.instr.write("SYST:BEEP OFF")
     
-    def load_setting_yaml(self):
+    def loadYAML(self):
         try:
             with open("./instruDriver/OSC_YAML/"+self.model+".yaml","r") as f:
                 self.commandDict = yaml.load(f,Loader=yaml.FullLoader)
         except:
             print("Failed to Read YAML File!")
-    
-    def autoscale(self):
-        self.instr.write(self.commandDict["autosetCommand"]["autoset"])
+
+    def autoscale(self):# finish YAML version
+        try:
+            cmd = self.commandDict["autosetCommand"]["autoset"]
+        except:
+            print("autoset is supported by current version")
+        self.instr.write(cmd)
         time.sleep(1)
     
-    def vrms(self,channel:channel_number):
-        cmd:str = self.commandDict["measureCommand"]["command"]+\
-            self.commandDict["measureCommand"]["item"]["command"]+\
-            self.commandDict["measureCommand"]["item"]["endfix_single"]
-        cmd.replace("<src>",self.commandDict["measureCommand"]["item"]["src"][channel.value])
-        cmd.replace("<item>",self.commandDict["measureCommand"]["item"]["vrms"])
+    def measure(self,parameter:wave_parameter,channel1:channel_number,channel2:channel_number=channel_number.channel1):
+        #finish YAML version
+        try:
+            cmd:str = self.commandDict["measureCommand"][parameter.value]
+        except:
+            print("measure " +parameter.value+" is not supported by current version YAML")
+            return 0
+
+        if(cmd.count("<src>") == 1):
+            cmd=cmd.replace("<src>",self.commandDict["measureCommand"]["src"][channel1.value])
+        else:
+            cmd=cmd.replace("<src>",self.commandDict["measureCommand"]["src"][channel1.value],1)
+            cmd=cmd.replace("<src>",self.commandDict["measureCommand"]["src"][channel2.value])
         return float(self.instr.ask(cmd))
 
-    def freq(self,channel):
-        cmd = ":MEAS:ITEM? FREQ,"+channel.value
-        return float(self.instr.ask(cmd))
-
-    def phase(self,channelA,channelB):
-        cmd = ":MEAS:ITEM? RRPH,"+channelA.value+","+channelB.value
-        return float(self.instr.ask(cmd))
-
-    def setAcquire(self,memdepth:memory_store_depth=memory_store_depth.depth_AUTO,\
-        samplemode:sample_method=sample_method.normal):
-        self.instr.write(":ACQ:TYPE "+samplemode.value)
-        self.instr.write(":ACQ:MDEP "+memdepth.value)
-        # print("Memory Depth of "+self.model+" locates at "+self.addr+" set to "+self.instr.ask(":ACQ:MDEP?"))
-        # print("Acquire Mode of "+self.model+" locates at "+self.addr+" set to "+self.instr.ask(":ACQ:TYPE?"))
-        time.sleep(1)
+    def acquireType(self,samplemode:sample_type):
+        #finish YAML version
+        try:
+            cmd:str = self.commandDict["acquireCommand"]["command"]\
+                      +self.commandDict["acquireCommand"]["type"]["command"]\
+                      +self.commandDict["acquireCommand"]["type"][samplemode.value]
+        except:
+            print("acquire type setting is not supported by current version YAML")
+            return 0
+        return self.instr.write(cmd)
 
     def getScreenshoot(self,file_name:str):
         with open(file_name,"wb") as image:
@@ -104,7 +130,7 @@ class UIP_OSC:
     def getTimebaseScale(self):
         return float(self.instr.ask(":TIM:SCAL?"))
     
-    def setChannelCouple(self,channel,couple:couple_type):
+    def setChannelCouple(self,channel,couple):
         self.instr.write(":"+channel.value+":COUP "+couple.value)
     
     def setTriggerChannel(self,channel):
@@ -127,15 +153,11 @@ class UIP_OSC:
         return float(Atte)
     
 if __name__=="__main__":
-    my_osc=mso5k("192.168.31.32","MSO5072")
-    print(my_osc.voltage(channel_number.ch1,wave_parameter.rms))
-    print(my_osc.freq(channel_number.ch1))
-    my_osc.setAcquire(samplemode=sample_method.normal,memdepth=memory_store_depth.depth_1M)
-    # my_osc.autoscale()
-    # time.sleep(10)
-    print(time.time())
-    my_osc.saveChanneltoFile("/home/inststa/inststa/data/channel2.csv",channel_number.ch1,data_mode=memory_store_method.RAW_data,memory_length=1000000)
-    my_osc.getScreenshoot("/home/inststa/inststa/image/sc1.bmp")
-    print(time.time())
-    os.system("cp -r /home/inststa/inststa/data/ /home/inststa/ERP/data")
+    my_osc=UIP_OSC("192.168.32.112","DHO900",interface=interface_Enum.LXI)
+    my_osc.autoscale()
+    my_osc.acquireType(sample_type.hires)
+    time.sleep(2)
+    print(my_osc.measure(wave_parameter.freq,channel_number.channel1))
+    print(my_osc.measure(wave_parameter.rise_rise_phase,channel_number.channel1,channel_number.channel3))
+
     

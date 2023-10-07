@@ -1,6 +1,7 @@
 oscillscope:
   model: DHO900
   SampleRate: 1.25e9
+  driverVersion: "v1.0a"
 
 rootCommand:
   run: ":RUN"
@@ -13,39 +14,40 @@ autosetCommand:
 acquireCommand:
   command: ":ACQ"
   averages: 
-    command: ":AVER <n>"
+    command: ":AVER <val>"
   mdepth:
-    command: ":MEDP <val>"
+    command: ":MEDP "
     list: ["AUTO","1k","10k","1M","10M","25M","50M"]
   type:
-    command: ":TYPE <val>"
+    command: ":TYPE "
     norm: "NORM"
     peak: "PEAK"
     aver: "AVER"
 
 measureCommand:
   command: ":MEAS"
-  item:
-    command: ":ITEM?"
-    endfix_single: " <item>,<src>,<src>"
-    endfix_dual: " <item>,<src>"
-    vmax: "VMAX"
-    vmin: "VMIN"
-    vpp: "VPP"
-    vrms: "VRMS"
-    ac_rms: "ACRMS"
-    rise_rise_phase: "RRPhase"
-    rise_fall_phase: "RFPhase"
-    fall_rise_phase: "FRPhase"
-    fall_fall_phase: "FFPhase"
-    src:
-      channel1: "CHAN1"
-      channel2: "CHAN2"
-      channel3: "CHAN3"
-      channel4: "CHAN4"
+  vmax: ":MEAS:ITEM? VMAX,<src>"
+  vmin: ":MEAS:ITEM? VMIN,<src>"
+  vpp: ":MEAS:ITEM? VPP,<src>"
+  vrms: ":MEAS:ITEM? VRMS,<src>"
+  ac_rms: ":MEAS:ITEM? ACRMS,<src>"
+  rise_rise_phase: ":MEAS:ITEM? RRPhase,<src>,<src>"
+  rise_fall_phase: ":MEAS:ITEM? RFPhase,<src>,<src>"
+  fall_rise_phase: ":MEAS:ITEM? FRPhase,<src>,<src>"
+  fall_fall_phase: ":MEAS:ITEM? FFPhase,<src>,<src>"
+  freq: ":MEAS:ITEM? FREQ,<src>"
+  src:
+    channel1: "CHAN1"
+    channel2: "CHAN2"
+    channel3: "CHAN3"
+    channel4: "CHAN4"
 
 channelCommand:
-  command: ":CHAN<n>"
+  command:
+    channel1: ":CHAN1"
+    channel2: ":CHAN2"
+    channel3: ":CHAN3"
+    channel4: ":CHAN4"
   bandwidthLimit:
     command: ":BWL "
     list: ["20M"]

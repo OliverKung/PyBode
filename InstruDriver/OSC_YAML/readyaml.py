@@ -1,5 +1,5 @@
 import yaml
-with open("./template.yaml") as f:
+with open("./DHO900.yaml") as f:
     data = yaml.load(f,Loader=yaml.FullLoader)
     print(type(data))
-    print(data["autosetCommand"]["autoset"])
+    print(data["measureCommand"]["vpp"])
