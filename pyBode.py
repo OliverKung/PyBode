@@ -68,15 +68,17 @@ class PyBode():
 
         channel1_atte = my_osc.getChannelAtte(inputChannel)
         channel2_atte = my_osc.getChannelAtte(outputChannel)
-
-        with open('.\\ExampleData\\bode_data_'+time.strftime("%Y-%m-%d-%H%M%S", time.localtime(time.time()))+".csv","w") as f:
+        filename='bode_data_'+time.strftime("%Y-%m-%d-%H%M%S", time.localtime(time.time()))+".csv"
+        with open(".\\temp\\datafilename.txt","w") as f:
+            f.write(filename)
+        with open(".\\ExampleData\\"+filename,"w") as f:
             for freq in tqdm(freq_list):
                 with open(".\\temp\\progress.csv","w") as tmp:
                     tmp.write(str(freq)+","+str(counter)+","+str(int(totalPoints)))
                     tmp.close()
                     counter=counter+1
                 if(self.syncTriggerEnable == False):
-                    sample_delay=0.01 if 0.01>4*1/freq else 4*1/freq
+                    sample_delay=0.1 if 0.1>4*1/freq*2**self.average_times else 4*1/freq*2**self.average_times
                 else:
                     sample_delay=4*4*1/freq*2**self.average_times
                 # print(sample_delay)
@@ -136,7 +138,7 @@ class PyBode():
                     phase = 0
                 gain=20*math.log(voltage2/voltage1,10)
                 # print(str(freq)+","+str(voltage1)+","+str(voltage2)+","+str(gain)+","+str(phase))
-                f.write(str(freq)+","+str(voltage1)+","+str(voltage2)+","+str(gain)+","+str(phase)+"\r")
+                f.write(str(freq)+","+str(voltage1)+","+str(voltage2)+","+str(gain)+","+str(phase)+","+str(0.5*Ampilitude/math.sqrt(2))+"\r")
                 df.loc[len(df.index)]=[freq,gain,phase]
             f.close()
         fig = make_subplots(rows = 2, cols = 1)

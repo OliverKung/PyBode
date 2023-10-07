@@ -9,8 +9,12 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 import PyQt5.QtCore as QtCore
 from PyQt5.QtGui import QIcon
 import GUI,progressbar,channelSet
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
+import plotly.offline
 import ctypes
-
+import pandas as pd 
+import math
 def check_ip(ipAddr):
     compile_ip=re.compile('^(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[1-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|\d)\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|\d)\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|\d)$')
     if compile_ip.match(ipAddr):
@@ -144,6 +148,8 @@ class mainCode(QMainWindow,GUI.Ui_pyBode):
             state.write("StartFrequency="+self.StartFrequency.text()+"\r")
             state.write("StopFrequency="+self.StopFrequency.text()+"\r")
             state.write("Point="+self.Points.text()+"\r")
+            state.write("PlotInput="+str(self.PlotInput.currentIndex())+"\r")
+            state.write("PlotOutput="+str(self.PlotOutput.currentIndex())+"\r")
             state.close()
         WarningBox("Current State Saved")
 
@@ -186,6 +192,10 @@ class mainCode(QMainWindow,GUI.Ui_pyBode):
                     self.StopFrequency.setText(value)
                 if(name =="Point"):
                     self.Points.setText(value)
+                if(name =="PlotOutput"):
+                    self.PlotOutput.setCurrentIndex(int(value))
+                if(name =="PlotInput"):
+                    self.PlotInput.setCurrentIndex(int(value))
             state.close()
         WarningBox("Load Current State")
 
@@ -193,13 +203,58 @@ class mainCode(QMainWindow,GUI.Ui_pyBode):
     def on_actionChannel_Set_Triggered(self):
         self.actionChannelProcess = subprocess.Popen("python channelSet_GUI.py --osc-ip "+self.OSC_IP.text()+" --afg-ip "+self.AFG_IP.text())
 
+    @pyqtSlot()
+    def on_Replot_clicked(self):
+        self.plot2html()
+        self.loadHtml()
+
+    def plot2html(self):
+        self.df = pd.DataFrame({}, columns=['freq', 'gain', 'phase'])
+        if(self.PlotInput.currentText()!="Excite"):
+            InputPos = self.PlotInput.currentIndex()+1
+        else:
+            InputPos = 5
+        
+
+        if(self.PlotOutput.currentText()!="Excite"):
+            OutputPos = self.PlotOutput.currentIndex()+1
+        else:
+            OutputPos = 5
+            
+        print(InputPos,OutputPos)
+        with open(".\\temp\\datafilename.txt","r") as f:
+            datafilename=f.readline()
+            f.close()
+        with open(".\\ExampleData\\"+datafilename,"r") as f:
+            datalines = f.readlines()
+            f.close()
+            for line in datalines:
+                lineSplit = line.split(",")
+                # print(lineSplit)
+                # print(float(lineSplit[0]),float(lineSplit[InputPos]),float(lineSplit[OutputPos]))
+                self.df.loc[len(self.df.index)]=[float(lineSplit[0]),\
+                                                 20*math.log(float(lineSplit[OutputPos])/float(lineSplit[InputPos])),\
+                                                float(lineSplit[4])]
+        if(OutputPos!=6 and InputPos!=6):
+            fig = make_subplots(rows = 2,cols = 1)
+            fig.add_trace(go.Scatter(x=self.df['freq'], y=self.df['gain'], mode='lines', name='Gain'), row = 1, col = 1)
+            fig.add_trace(go.Scatter(x=self.df['freq'], y=self.df['phase'], mode='lines', name='Phase'), row = 2, col = 1)
+            fig.update_xaxes(type="log", exponentformat="power")
+            plotly.offline.plot(fig, filename=os.path.abspath(os.path.join(os.path.dirname(__file__), "name_x.html")), auto_open=False)
+        else:
+            fig = make_subplots(rows = 1,cols = 1)
+            fig.add_trace(go.Scatter(x=self.df['freq'], y=self.df['gain'], mode='lines', name='Gain'), row = 1, col = 1)
+            # fig.add_trace(go.Scatter(x=self.df['freq'], y=self.df['phase'], mode='lines', name='Phase'), row = 2, col = 1)
+            fig.update_xaxes(type="log", exponentformat="power")
+            plotly.offline.plot(fig, filename=os.path.abspath(os.path.join(os.path.dirname(__file__), "name_x.html")), auto_open=False)
     def loadHtml(self):
-        file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "name.html"))
+        file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "name_x.html"))
         self.plotyWidget.load(QUrl.fromLocalFile(file_path))
 
     def lifecheck(self):
         if not self.pyBode_cmd_process.poll()==None:
             self.checkLifeTimer.stop()
+            self.plot2html()
             self.loadHtml()
             self.StartButton.setEnabled(True)
             self.STOPButton.setEnabled(False)

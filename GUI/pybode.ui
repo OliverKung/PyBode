@@ -157,6 +157,11 @@
                 <string>CH4</string>
                </property>
               </item>
+              <item>
+               <property name="text">
+                <string>Theo</string>
+               </property>
+              </item>
              </widget>
             </item>
            </layout>
@@ -461,6 +466,102 @@
       <item row="5" column="0">
        <layout class="QVBoxLayout" name="verticalLayout_17">
         <item>
+         <layout class="QVBoxLayout" name="verticalLayout_14">
+          <item>
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Plot Setting</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_8">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_27">
+              <item>
+               <widget class="QLabel" name="label_23">
+                <property name="text">
+                 <string>Input</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="PlotInput">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Input</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Output</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Excite</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_28">
+              <item>
+               <widget class="QLabel" name="label_24">
+                <property name="text">
+                 <string>Output</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="PlotOutput">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Input</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Output</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Excite</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
          <widget class="QCheckBox" name="SyncTriggerEnable">
           <property name="text">
            <string>Sync Trigger Enable</string>
@@ -468,11 +569,22 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="LoadVNC">
-          <property name="text">
-           <string>LOAD VNC</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QPushButton" name="LoadVNC">
+            <property name="text">
+             <string>LOAD VNC</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="Replot">
+            <property name="text">
+             <string>REPLOT</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout">
@@ -612,7 +724,7 @@
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>23</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -677,7 +789,6 @@
   <tabstop>StopFrequency</tabstop>
   <tabstop>Points</tabstop>
   <tabstop>SyncTriggerEnable</tabstop>
-  <tabstop>LoadVNC</tabstop>
   <tabstop>StartButton</tabstop>
   <tabstop>STOPButton</tabstop>
  </tabstops>
